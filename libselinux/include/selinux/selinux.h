@@ -1,6 +1,7 @@
 #ifndef _SELINUX_H_
 #define _SELINUX_H_
 
+#include <stdint.h>
 #include <sys/types.h>
 #include <stdarg.h>
 
@@ -521,7 +522,15 @@ extern int matchpathcon_index(const char *path,
    with the same inode (e.g. due to multiple hard links).  If so, then
    use the latter of the two specifications based on their order in the 
    file contexts configuration.  Return the used specification index. */
-extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
+#if _FILE_OFFSET_BITS == 64
+typedef uint64_t libselinux_ino_t;
+#if __BITS_PER_LONG < 64
+#define matchpathcon_filespec_add matchpathcon_filespec_add64
+#endif
+#else
+typedef uint32_t libselinux_ino_t;
+#endif
+extern int matchpathcon_filespec_add(libselinux_ino_t ino, int specind, const char *file);
 
 /* Destroy any inode associations that have been added, e.g. to restart
    for a new filesystem. */

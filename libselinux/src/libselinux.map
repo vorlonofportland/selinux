@@ -251,4 +251,5 @@ LIBSELINUX_3.5 {
   global:
     getpidprevcon;
     getpidprevcon_raw;
+    matchpathcon_filespec_add64;
 } LIBSELINUX_3.4;

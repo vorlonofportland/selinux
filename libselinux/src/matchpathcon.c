@@ -195,7 +195,8 @@ static file_spec_t *fl_head;
  * then use the specification that occurs later in the
  * specification array.
  */
-int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
+int matchpathcon_filespec_add(libselinux_ino_t ino, int specind,
+                              const char *file)
 {
 	file_spec_t *prevfl, *fl;
 	int h, ret;
@@ -260,6 +261,18 @@ int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
 		 __FUNCTION__, file);
 	return -1;
 }
+
+#if _FILE_OFFSET_BITS == 64 && __BITS_PER_LONG < 64
+/* alias defined in the public header but we undefine it here */
+#undef matchpathcon_filespec_add
+
+/* ABI backwards-compatible shim for non-LFS 32-bit systems */
+int matchpathcon_filespec_add(unsigned long ino, int specind,
+                              const char *file)
+{
+	return matchpathcon_filespec_add64(ino, specind, file);
+}
+#endif
 
 /*
  * Evaluate the association hash table distribution.
